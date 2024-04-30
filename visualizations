@@ -1,0 +1,63 @@
+```{r, project}
+  library(readr)
+  library(quantmod)
+  library(dplyr)
+  library(corrplot)
+  library(RColorBrewer)
+  library(ggplot2)
+  library(scales)
+
+
+  setwd("C:/Users/bribz/OneDrive/Desktop/stat 4355")
+  data = read.csv("meta.csv")  
+  data
+
+  #open and close over time
+  data$date <- as.Date(data$date)
+
+  ggplot(data, aes(x = date, group = 1)) + 
+          geom_line(aes( y = open, color = "Open")) +
+          geom_line(aes(y = close, color = "Close")) +
+  labs(title = "Open and Close Prices Over Time",
+      x = "Date",
+      y = "Price") +
+  scale_x_date(labels = date_format("%Y"), date_breaks = "1 year") 
+      + scale_color_manual(values = c("Open" = "blue", "Close" = "red")
+
+                           
+  #create heatmap
+  numeric_data <- select(data, -date)
+
+  M = cor(numeric_data)
+  head(round(M,2))
+  corrplot(M, method = "color", tl.col = "black", col = brewer.pal(8, "Spectral"), addCoef.col = "black", number.cex = .4, tl.cex = .6)
+
+  #volume vs closing
+  ggplot(data, aes(x = close, y = volume)) +
+  geom_point(size = .8) +
+  labs(x = "Close Price", y = "Volume ") +
+  ggtitle("Volume vs. Closing Price")
+
+                           
+  # Plot RSI over time for the last year 
+  last_year_data = subset(data, data$date >= "2023-01-01" )
+  last_year_data
+  
+  ggplot(last_year_data, aes(x = date)) +
+      geom_line(aes(y = rsi_7, color = "RSI 7")) +
+      geom_line(aes(y = rsi_14, color = "RSI 14")) +
+      labs(x = "Date", y = "7 Day Relative Strength Index") +
+      scale_x_date(date_labels = "%b %Y", date_breaks = "1 month") +
+      ggtitle("RSI Over The last Year") + 
+      scale_color_manual(values = c("RSI 7" = "blue", "RSI 14" = "red")) + theme(axis.text = element_text(size = 5))
+  
+  ggplot(data, aes(x = date)) +
+      geom_line(aes(y = sma_50, color = "sma_50")) +
+      geom_line(aes(y = sma_100, color = "sma_100")) +
+      geom_line(aes(y = ema_50, color = "ema_50")) +
+      geom_line(aes(y = ema_100, color = "ema_100")) +
+      labs(x = "Date", y = "Data") +
+      scale_x_date(date_labels = "%Y", date_breaks = "1 year") +
+      ggtitle("META: SMA/EMA") + 
+      scale_color_manual(values = c("sma_50" = "red", "sma_100" = "orange", "ema_50" = "blue", "ema_100" = "green")) + theme(axis.text = element_text(size = 10))
+```
